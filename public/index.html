@@ -283,7 +283,7 @@
                 formData.append('title', document.getElementById('songTitle').value);
                 formData.append('album', document.getElementById('albumName').value);
 
-                const response = await fetch('http://localhost:3000/process-mp3', {
+                const response = await fetch('/process-mp3', {
                     method: 'POST',
                     body: formData
                 });
