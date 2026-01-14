@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MP3 Artwork Editor</title>
+    <title>Spotify Album Art Generator</title>
     <style>
         * {
             margin: 0;
@@ -12,48 +12,56 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #121212;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            color: #fff;
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 600px;
+            background: #181818;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            padding: 48px;
+            max-width: 650px;
             width: 100%;
+            border: 1px solid #282828;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
         }
 
         h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+            color: #1DB954;
+            margin-bottom: 8px;
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
+            color: #b3b3b3;
             font-size: 14px;
+            line-height: 1.6;
         }
 
         .upload-section {
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+            font-weight: 700;
             font-size: 14px;
+            letter-spacing: 0.1px;
         }
 
         .file-input-wrapper {
@@ -72,131 +80,213 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border: 2px dashed #ddd;
-            border-radius: 10px;
+            padding: 20px;
+            background: #282828;
+            border: 2px dashed #404040;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #b3b3b3;
         }
 
         .file-input-label:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
+            border-color: #1DB954;
+            background: #1a1a1a;
+            color: #1DB954;
+        }
+
+        .file-input-label.active {
+            border-color: #1DB954;
+            background: rgba(29, 185, 84, 0.1);
         }
 
         .file-name {
-            margin-top: 8px;
+            margin-top: 10px;
             font-size: 13px;
-            color: #667eea;
+            color: #1DB954;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
+            padding: 14px 16px;
+            background: #282828;
+            border: 1px solid #404040;
             border-radius: 8px;
             font-size: 14px;
-            transition: border-color 0.3s;
+            color: #fff;
+            transition: all 0.2s ease;
+            font-family: inherit;
         }
 
         input[type="text"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #1DB954;
+            background: #1a1a1a;
+        }
+
+        input[type="text"]::placeholder {
+            color: #6a6a6a;
         }
 
         .preview {
             text-align: center;
-            margin: 25px 0;
+            margin: 32px 0;
         }
 
         .preview img {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 240px;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .preview-label {
+            display: block;
+            margin-bottom: 16px;
+            color: #b3b3b3;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         button {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 16px;
+            background: #1DB954;
+            color: #000;
             border: none;
-            border-radius: 10px;
+            border-radius: 500px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 8px;
         }
 
         button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: #1ed760;
+            transform: scale(1.02);
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.98);
         }
 
         button:disabled {
-            background: #ccc;
+            background: #535353;
+            color: #3e3e3e;
             cursor: not-allowed;
             transform: none;
         }
 
         .status {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 24px;
+            padding: 16px;
             border-radius: 8px;
             text-align: center;
             font-size: 14px;
+            font-weight: 600;
             display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .status.success {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(29, 185, 84, 0.15);
+            color: #1DB954;
+            border: 1px solid rgba(29, 185, 84, 0.3);
             display: block;
         }
 
         .status.error {
-            background: #f8d7da;
-            color: #721c24;
+            background: rgba(229, 57, 53, 0.15);
+            color: #e53935;
+            border: 1px solid rgba(229, 57, 53, 0.3);
             display: block;
         }
 
         .status.processing {
-            background: #d1ecf1;
-            color: #0c5460;
-            display: block;
+            background: rgba(29, 185, 84, 0.1);
+            color: #1DB954;
+            border: 1px solid rgba(29, 185, 84, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
 
         .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 3px solid rgba(29, 185, 84, 0.2);
+            border-top: 3px solid #1DB954;
             border-radius: 50%;
             width: 20px;
             height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 10px;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .info-box {
+            background: rgba(29, 185, 84, 0.1);
+            border: 1px solid rgba(29, 185, 84, 0.2);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #b3b3b3;
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: #1DB954;
+        }
+
+        .icon {
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎵 MP3 Artwork Editor</h1>
-        <p class="subtitle">Add album artwork and artist info to your MP3 files</p>
+        <div class="header">
+            <img src="spotifyicon.png" alt="Spotify" style="height: 42px; margin-bottom: 12px;">
+            <h1>Spotify Album Art Generator</h1>
+            <p class="subtitle">Add album artwork and metadata to your MP3 files<br>Optimized for Spotify standards</p>
+        </div>
+
+        <div class="info-box">
+            <strong>📌 Supported Formats:</strong> JPEG, PNG <br>
+            <strong style="color: #e53935;">⚠️ HEIC is not supported</strong>
+        </div>
 
         <div class="upload-section">
             <label>Select MP3 File *</label>
             <div class="file-input-wrapper">
                 <input type="file" id="mp3Input" accept="audio/mpeg,audio/mp3">
-                <label for="mp3Input" class="file-input-label">
-                    📁 Choose MP3 File
+                <label for="mp3Input" class="file-input-label" id="mp3Label">
+                    <span class="icon">🎵</span> Choose MP3 File
                 </label>
             </div>
             <div class="file-name" id="mp3FileName"></div>
@@ -205,15 +295,23 @@
         <div class="upload-section">
             <label>Select Album Artwork *</label>
             <div class="file-input-wrapper">
-                <input type="file" id="imageInput" accept="image/*">
-                <label for="imageInput" class="file-input-label">
-                    🖼️ Choose Image
+                <input type="file" id="imageInput" accept="image/jpeg,image/jpg,image/png,image/gif">
+                <label for="imageInput" class="file-input-label" id="imageLabel">
+                    <span class="icon">🖼️</span> Choose Image (JPEG, PNG, GIF)
                 </label>
             </div>
             <div class="file-name" id="imageFileName"></div>
         </div>
 
-        <div class="preview" id="imagePreview"></div>
+        <div class="preview" id="imagePreviewContainer" style="display: none;">
+            <span class="preview-label">Album Art Preview</span>
+            <div id="imagePreview"></div>
+        </div>
+
+        <div class="upload-section">
+            <label>Song Title *</label>
+            <input type="text" id="songTitle" placeholder="Enter song title" required>
+        </div>
 
         <div class="upload-section">
             <label>Artist Name</label>
@@ -221,16 +319,11 @@
         </div>
 
         <div class="upload-section">
-            <label>Song Title</label>
-            <input type="text" id="songTitle" placeholder="Enter song title">
-        </div>
-
-        <div class="upload-section">
             <label>Album Name</label>
             <input type="text" id="albumName" placeholder="Enter album name">
         </div>
 
-        <button id="processBtn" disabled>Add Artwork & Download</button>
+        <button id="processBtn" disabled>Generate & Download</button>
 
         <div class="status" id="status"></div>
     </div>
@@ -239,23 +332,32 @@
         let mp3File = null;
         let imageFile = null;
 
-        document.getElementById('mp3Input').addEventListener('change', (e) => {
+        const mp3Input = document.getElementById('mp3Input');
+        const imageInput = document.getElementById('imageInput');
+        const mp3Label = document.getElementById('mp3Label');
+        const imageLabel = document.getElementById('imageLabel');
+
+        mp3Input.addEventListener('change', (e) => {
             mp3File = e.target.files[0];
             if (mp3File) {
-                document.getElementById('mp3FileName').textContent = mp3File.name;
+                document.getElementById('mp3FileName').innerHTML = `<span class="icon">✓</span> ${mp3File.name}`;
+                mp3Label.classList.add('active');
                 checkReady();
             }
         });
 
-        document.getElementById('imageInput').addEventListener('change', (e) => {
+        imageInput.addEventListener('change', (e) => {
             imageFile = e.target.files[0];
             if (imageFile) {
-                document.getElementById('imageFileName').textContent = imageFile.name;
+                document.getElementById('imageFileName').innerHTML = `<span class="icon">✓</span> ${imageFile.name}`;
+                imageLabel.classList.add('active');
                 
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const preview = document.getElementById('imagePreview');
-                    preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                    const previewContainer = document.getElementById('imagePreviewContainer');
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Album Art Preview">`;
+                    previewContainer.style.display = 'block';
                 };
                 reader.readAsDataURL(imageFile);
                 checkReady();
@@ -263,16 +365,27 @@
         });
 
         function checkReady() {
-            document.getElementById('processBtn').disabled = !(mp3File && imageFile);
+            const songTitle = document.getElementById('songTitle').value.trim();
+            document.getElementById('processBtn').disabled = !(mp3File && imageFile && songTitle);
         }
+
+        document.getElementById('songTitle').addEventListener('input', checkReady);
 
         document.getElementById('processBtn').addEventListener('click', async () => {
             const status = document.getElementById('status');
             const btn = document.getElementById('processBtn');
+            const songTitle = document.getElementById('songTitle').value.trim();
+
+            if (!songTitle) {
+                status.className = 'status error';
+                status.textContent = '⚠️ Please enter a song title';
+                status.style.display = 'block';
+                return;
+            }
             
             status.className = 'status processing';
-            status.innerHTML = '<div class="loader"></div>Processing your MP3...';
-            status.style.display = 'block';
+            status.innerHTML = '<div class="loader"></div><span>Processing your track...</span>';
+            status.style.display = 'flex';
             btn.disabled = true;
 
             try {
@@ -280,7 +393,7 @@
                 formData.append('mp3', mp3File);
                 formData.append('image', imageFile);
                 formData.append('artist', document.getElementById('artistName').value);
-                formData.append('title', document.getElementById('songTitle').value);
+                formData.append('title', songTitle);
                 formData.append('album', document.getElementById('albumName').value);
 
                 const response = await fetch('/process-mp3', {
@@ -289,22 +402,22 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Server error: ' + response.statusText);
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || 'Server error: ' + response.statusText);
                 }
 
-                // Download the modified MP3
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = (document.getElementById('songTitle').value || mp3File.name.replace('.mp3', '')) + '_with_artwork.mp3';
+                a.download = `${songTitle}.mp3`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
 
                 status.className = 'status success';
-                status.textContent = '✓ Success! Your MP3 with artwork has been downloaded!';
+                status.textContent = '✓ Success! Your track with album art has been downloaded!';
 
             } catch (error) {
                 status.className = 'status error';
@@ -312,6 +425,7 @@
 
             } finally {
                 btn.disabled = false;
+                setTimeout(checkReady, 100);
             }
         });
     </script>

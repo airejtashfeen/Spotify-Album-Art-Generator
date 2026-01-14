@@ -1,6 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const NodeID3 = require('node-id3');
+const sharp = require('sharp');
+const heicConvert = require('heic-convert'); // Install: npm install heic-convert
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -27,12 +29,30 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+});
 
 // Serve the HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// Helper function to convert HEIC to JPEG
+async function convertHeicToJpeg(inputPath) {
+    try {
+        const inputBuffer = await fs.promises.readFile(inputPath);
+        const outputBuffer = await heicConvert({
+            buffer: inputBuffer,
+            format: 'JPEG',
+            quality: 1
+        });
+        return outputBuffer;
+    } catch (error) {
+        throw new Error('Failed to convert HEIC image: ' + error.message);
+    }
+}
 
 // Process MP3 with artwork
 app.post('/process-mp3', upload.fields([
@@ -43,31 +63,52 @@ app.post('/process-mp3', upload.fields([
         const mp3File = req.files['mp3'][0];
         const imageFile = req.files['image'][0];
         const artistName = req.body.artist || '';
-        const songTitle = req.body.title || '';
+        const songTitle = req.body.title || 'modified';
         const albumName = req.body.album || '';
 
-        // Validate image format
-        const supportedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-        if (!supportedFormats.includes(imageFile.mimetype)) {
-            throw new Error(`Unsupported image format: ${imageFile.mimetype}. Please use JPG, PNG, or GIF. HEIC is not supported for MP3 artwork.`);
+        let imageBuffer;
+
+        // Check if it's a HEIC file and convert it
+        const isHeic = imageFile.originalname.toLowerCase().endsWith('.heic') || 
+                       imageFile.originalname.toLowerCase().endsWith('.heif') ||
+                       imageFile.mimetype === 'image/heic' ||
+                       imageFile.mimetype === 'image/heif';
+
+        if (isHeic) {
+            console.log('Converting HEIC to JPEG...');
+            imageBuffer = await convertHeicToJpeg(imageFile.path);
+        } else {
+            // Validate image format for non-HEIC files
+            const supportedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!supportedFormats.includes(imageFile.mimetype)) {
+                throw new Error(`Unsupported image format: ${imageFile.mimetype}. Please use JPEG, PNG, GIF, or HEIC.`);
+            }
+            imageBuffer = await fs.promises.readFile(imageFile.path);
         }
 
-        // Read image file
-        const imageBuffer = fs.readFileSync(imageFile.path);
+        // Resize image to Spotify standards (3000x3000px)
+        // Spotify recommends 3000x3000px, minimum 640x640px
+        const resizedImageBuffer = await sharp(imageBuffer)
+            .resize(3000, 3000, {
+                fit: 'cover',
+                position: 'center'
+            })
+            .jpeg({ quality: 95 }) // Convert to JPEG for best compatibility
+            .toBuffer();
 
-        // Prepare ID3 tags
+        // Prepare ID3 tags with resized image
         const tags = {
             artist: artistName,
             title: songTitle,
             album: albumName,
             image: {
-                mime: imageFile.mimetype,
+                mime: 'image/jpeg',
                 type: {
                     id: 3,
                     name: 'Front Cover'
                 },
                 description: 'Album Art',
-                imageBuffer: imageBuffer
+                imageBuffer: resizedImageBuffer
             }
         };
 
@@ -85,9 +126,9 @@ app.post('/process-mp3', upload.fields([
             // Read the modified file
             const modifiedFile = fs.readFileSync(outputPath);
 
-            // Send the modified file
+            // Send the modified file with proper filename
             res.setHeader('Content-Type', 'audio/mpeg');
-            res.setHeader('Content-Disposition', `attachment; filename="${songTitle || 'modified'}.mp3"`);
+            res.setHeader('Content-Disposition', `attachment; filename="${songTitle}.mp3"`);
             res.send(modifiedFile);
 
             // Clean up temporary files after sending
@@ -120,6 +161,7 @@ app.post('/process-mp3', upload.fields([
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🎵 Spotify Album Art Generator running on http://localhost:${PORT}`);
+    console.log('✨ HEIC images will be automatically converted to JPEG');
     console.log('Make sure to create a "public" folder and place index.html inside it');
 });
