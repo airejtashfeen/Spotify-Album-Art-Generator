@@ -308,7 +308,8 @@
 
             } catch (error) {
                 status.className = 'status error';
-                status.textContent = '✗ Error: ' + error.message + '. Make sure the server is running on port 3000.';
+                status.textContent = '✗ Error: ' + error.message;
+
             } finally {
                 btn.disabled = false;
             }
