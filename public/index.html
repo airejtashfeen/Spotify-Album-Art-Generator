@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP3 Artwork Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .upload-section {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .preview {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .status.processing {
+            background: #d1ecf1;
+            color: #0c5460;
+            display: block;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 MP3 Artwork Editor</h1>
+        <p class="subtitle">Add album artwork and artist info to your MP3 files</p>
+
+        <div class="upload-section">
+            <label>Select MP3 File *</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="mp3Input" accept="audio/mpeg,audio/mp3">
+                <label for="mp3Input" class="file-input-label">
+                    📁 Choose MP3 File
+                </label>
+            </div>
+            <div class="file-name" id="mp3FileName"></div>
+        </div>
+
+        <div class="upload-section">
+            <label>Select Album Artwork *</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="imageInput" accept="image/*">
+                <label for="imageInput" class="file-input-label">
+                    🖼️ Choose Image
+                </label>
+            </div>
+            <div class="file-name" id="imageFileName"></div>
+        </div>
+
+        <div class="preview" id="imagePreview"></div>
+
+        <div class="upload-section">
+            <label>Artist Name</label>
+            <input type="text" id="artistName" placeholder="Enter artist name">
+        </div>
+
+        <div class="upload-section">
+            <label>Song Title</label>
+            <input type="text" id="songTitle" placeholder="Enter song title">
+        </div>
+
+        <div class="upload-section">
+            <label>Album Name</label>
+            <input type="text" id="albumName" placeholder="Enter album name">
+        </div>
+
+        <button id="processBtn" disabled>Add Artwork & Download</button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let mp3File = null;
+        let imageFile = null;
+
+        document.getElementById('mp3Input').addEventListener('change', (e) => {
+            mp3File = e.target.files[0];
+            if (mp3File) {
+                document.getElementById('mp3FileName').textContent = mp3File.name;
+                checkReady();
+            }
+        });
+
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            imageFile = e.target.files[0];
+            if (imageFile) {
+                document.getElementById('imageFileName').textContent = imageFile.name;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(imageFile);
+                checkReady();
+            }
+        });
+
+        function checkReady() {
+            document.getElementById('processBtn').disabled = !(mp3File && imageFile);
+        }
+
+        document.getElementById('processBtn').addEventListener('click', async () => {
+            const status = document.getElementById('status');
+            const btn = document.getElementById('processBtn');
+            
+            status.className = 'status processing';
+            status.innerHTML = '<div class="loader"></div>Processing your MP3...';
+            status.style.display = 'block';
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('mp3', mp3File);
+                formData.append('image', imageFile);
+                formData.append('artist', document.getElementById('artistName').value);
+                formData.append('title', document.getElementById('songTitle').value);
+                formData.append('album', document.getElementById('albumName').value);
+
+                const response = await fetch('http://localhost:3000/process-mp3', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Server error: ' + response.statusText);
+                }
+
+                // Download the modified MP3
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = (document.getElementById('songTitle').value || mp3File.name.replace('.mp3', '')) + '_with_artwork.mp3';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                status.className = 'status success';
+                status.textContent = '✓ Success! Your MP3 with artwork has been downloaded!';
+
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '✗ Error: ' + error.message + '. Make sure the server is running on port 3000.';
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
